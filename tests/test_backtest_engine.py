@@ -102,3 +102,17 @@ def test_unsorted_index_raises_validation_error() -> None:
 
     with pytest.raises(ValueError, match="sorted"):
         run_backtest(BacktestInput(price_data=prices, signals=signals))
+
+
+def test_fee_rate_above_one_raises_validation_error() -> None:
+    prices = _price_data([100.0, 101.0, 102.0])
+    signals = pd.Series([0, 1, 1], index=prices.index, dtype=float)
+
+    with pytest.raises(ValueError, match="between 0.0 and 1.0"):
+        run_backtest(
+            BacktestInput(
+                price_data=prices,
+                signals=signals,
+                fee_rate=1.01,
+            )
+        )

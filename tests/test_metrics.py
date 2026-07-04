@@ -33,7 +33,8 @@ def test_max_drawdown_matches_known_curve() -> None:
 def test_cagr_and_volatility_on_deterministic_series() -> None:
     annualization_factor = 252
     returns = pd.Series([0.01] * annualization_factor, dtype=float)
-    equity = 100.0 * (1.0 + returns).cumprod()
+    index = pd.bdate_range("2024-01-02", periods=annualization_factor)
+    equity = pd.Series((100.0 * (1.0 + returns).cumprod()).to_numpy(), index=index)
 
     metrics = calculate_performance_metrics(
         returns=returns,
@@ -42,7 +43,8 @@ def test_cagr_and_volatility_on_deterministic_series() -> None:
         annualization_factor=annualization_factor,
     )
 
-    expected_cagr = float((equity.iloc[-1] / equity.iloc[0]) ** (annualization_factor / len(equity)) - 1.0)
+    elapsed_years = (equity.index[-1] - equity.index[0]).days / 365.25
+    expected_cagr = float((equity.iloc[-1] / equity.iloc[0]) ** (1.0 / elapsed_years) - 1.0)
     assert pytest.approx(metrics.cagr, rel=1e-9) == expected_cagr
     assert pytest.approx(metrics.annualized_volatility, abs=1e-12) == 0.0
 

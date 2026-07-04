@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import pandas as pd
 
@@ -39,3 +39,23 @@ class BacktestResult:
     positions: pd.Series
     trade_log: list[TradeRecord]
     metrics: PerformanceMetrics
+
+
+@dataclass(frozen=True)
+class StrategyDefinition:
+    key: str
+    display_name: str
+    description: str
+
+
+@dataclass(frozen=True)
+class StrategyBacktestResult:
+    strategy: StrategyDefinition
+    result: BacktestResult
+
+
+@dataclass(frozen=True)
+class StrategyComparison:
+    ticker: str
+    price_data: pd.DataFrame
+    strategy_results: list[StrategyBacktestResult] = field(default_factory=list)

@@ -8,8 +8,8 @@ def calculate_strategy_returns(
 ) -> pd.Series:
     if not asset_returns.index.equals(positions.index):
         raise ValueError("Asset returns and positions must share the same index.")
-    if fee_rate < 0:
-        raise ValueError("Fee rate cannot be negative.")
+    if not 0.0 <= fee_rate <= 1.0:
+        raise ValueError("Fee rate must be between 0.0 and 1.0.")
 
     gross_returns = positions * asset_returns
     turnover = positions.diff().abs().fillna(positions.abs())

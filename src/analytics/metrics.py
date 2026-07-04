@@ -48,10 +48,23 @@ def _calculate_cagr(equity_curve: pd.Series, annualization_factor: int) -> float
     if len(equity_curve) < 2 or equity_curve.iloc[0] <= 0 or equity_curve.iloc[-1] <= 0:
         return 0.0
 
-    years = len(equity_curve) / annualization_factor
+    years = _calculate_elapsed_years(equity_curve, annualization_factor)
     if years <= 0:
         return 0.0
     return float((equity_curve.iloc[-1] / equity_curve.iloc[0]) ** (1.0 / years) - 1.0)
+
+
+def _calculate_elapsed_years(
+    equity_curve: pd.Series, annualization_factor: int
+) -> float:
+    if isinstance(equity_curve.index, pd.DatetimeIndex):
+        elapsed_seconds = (
+            equity_curve.index[-1].to_pydatetime() - equity_curve.index[0].to_pydatetime()
+        ).total_seconds()
+        if elapsed_seconds > 0:
+            return elapsed_seconds / (365.25 * 24 * 60 * 60)
+
+    return len(equity_curve) / annualization_factor
 
 
 def _calculate_annualized_volatility(
